@@ -1,0 +1,6 @@
+演示任务：
+请检查 demo/calculator.py 和 demo/check_calculator.py，修复计算器里的错误，并运行验证脚本确认通过。
+
+可运行命令：
+python -m minicodex --max-steps 8 "请检查 demo/calculator.py 和 demo/check_calculator.py，修复计算器里的错误，并运行验证脚本确认通过。"
+
