@@ -14,8 +14,10 @@ MiniCodex 是一个教学版 coding agent。它没有使用 LangChain、LlamaInd
 ## 工具
 
 - `list_files`：查看工作区文件。
+- `search_text`：在工作区内搜索文本或正则表达式，返回文件名和行号。
 - `read_file`：带行号读取文件片段。
 - `write_file`：写入新文件或覆盖文件。
+- `append_file`：向文件末尾追加内容，适合补充测试或日志。
 - `replace_text`：按精确文本替换局部内容。
 - `run_command`：在工作区内执行命令，带超时和输出截断。
 
@@ -25,5 +27,5 @@ MiniCodex 是一个教学版 coding agent。它没有使用 LangChain、LlamaInd
 
 ## 可辩护的取舍
 
-本项目选择 JSON 协议而非厂商 tool calling，是为了展示工具定义、输出解析和循环控制均由本地代码掌握。工具数量较少，但覆盖了 coding agent 最核心的读、写、改、跑四种能力；实现也便于在面试中逐行解释。
+本项目选择 JSON 协议而非厂商 tool calling，是为了展示工具定义、输出解析和循环控制均由本地代码掌握。工具数量不多，但覆盖了 coding agent 最核心的找、读、写、改、跑五种能力；实现也便于在面试中逐行解释。
 

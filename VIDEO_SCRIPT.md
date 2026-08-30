@@ -4,6 +4,12 @@
 
 展示项目目录，说明这是一个从零实现的 coding agent，没有使用 agent 框架。核心代码在 `minicodex/`，演示文件在 `demo/`。
 
+录制前可运行：
+
+```powershell
+python scripts/reset_demo.py
+```
+
 ## 0:15-0:35 说明机制
 
 打开 `minicodex/agent.py` 和 `minicodex/tools.py`，简要说明：

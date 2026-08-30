@@ -53,10 +53,14 @@ class WorkspaceTools:
         try:
             if name == "list_files":
                 return self.list_files(**args)
+            if name == "search_text":
+                return self.search_text(**args)
             if name == "read_file":
                 return self.read_file(**args)
             if name == "write_file":
                 return self.write_file(**args)
+            if name == "append_file":
+                return self.append_file(**args)
             if name == "replace_text":
                 return self.replace_text(**args)
             if name == "run_command":
@@ -88,6 +92,45 @@ class WorkspaceTools:
                 break
 
         return ToolResult(True, "\n".join(entries) or "(empty)")
+
+    def search_text(
+        self,
+        query: str,
+        path: str = ".",
+        case_sensitive: bool = False,
+        regex: bool = False,
+        max_matches: int = 50,
+    ) -> ToolResult:
+        if not query:
+            return ToolResult(False, "Query cannot be empty.")
+
+        base = self._resolve(path)
+        if not base.exists():
+            return ToolResult(False, f"Path does not exist: {path}")
+
+        flags = 0 if case_sensitive else re.IGNORECASE
+        try:
+            pattern = re.compile(query if regex else re.escape(query), flags)
+        except re.error as exc:
+            return ToolResult(False, f"Invalid regex: {exc}")
+
+        files = [base] if base.is_file() else (p for p in base.rglob("*") if p.is_file())
+        matches: list[str] = []
+        for file_path in files:
+            if self._is_ignored(file_path) or not self._looks_like_text(file_path):
+                continue
+            try:
+                lines = file_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                continue
+            for line_no, line in enumerate(lines, start=1):
+                if pattern.search(line):
+                    rel = file_path.relative_to(self.workspace).as_posix()
+                    matches.append(f"{rel}:{line_no}: {line}")
+                    if len(matches) >= max_matches:
+                        return ToolResult(True, "\n".join(matches) + "\n... match limit reached")
+
+        return ToolResult(True, "\n".join(matches) or "(no matches)")
 
     def read_file(
         self,
@@ -122,6 +165,17 @@ class WorkspaceTools:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(str(content), encoding="utf-8", newline="\n")
         return ToolResult(True, f"Wrote {path} ({len(str(content).splitlines())} lines).")
+
+    def append_file(
+        self,
+        path: str,
+        content: str,
+    ) -> ToolResult:
+        target = self._resolve(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("a", encoding="utf-8", newline="\n") as stream:
+            stream.write(str(content))
+        return ToolResult(True, f"Appended to {path} ({len(str(content).splitlines())} lines).")
 
     def replace_text(
         self,
@@ -202,6 +256,13 @@ class WorkspaceTools:
 
     def _is_ignored(self, path: Path) -> bool:
         return any(part in IGNORED_DIRS for part in path.relative_to(self.workspace).parts)
+
+    def _looks_like_text(self, path: Path) -> bool:
+        try:
+            chunk = path.read_bytes()[:2048]
+        except OSError:
+            return False
+        return b"\0" not in chunk
 
     def _looks_risky(self, command: str) -> bool:
         return any(re.search(pattern, command, flags=re.IGNORECASE) for pattern in RISKY_COMMAND_PATTERNS)

@@ -1,8 +1,10 @@
 TOOL_GUIDE = """
 Available tools:
 - list_files: {"path": ".", "recursive": true, "max_entries": 200}
+- search_text: {"query": "function_name", "path": ".", "case_sensitive": false, "regex": false, "max_matches": 50}
 - read_file: {"path": "relative/path.py", "start_line": 1, "max_lines": 200}
 - write_file: {"path": "relative/path.py", "content": "...", "overwrite": true}
+- append_file: {"path": "relative/path.py", "content": "..."}
 - replace_text: {"path": "relative/path.py", "old": "...", "new": "...", "count": 1}
 - run_command: {"command": "python -m unittest", "timeout": 30}
 """
@@ -22,6 +24,7 @@ For completion:
 Rules:
 - Use relative paths inside the workspace.
 - Inspect relevant files before editing them.
+- Use search_text when you need to locate definitions, error messages, or references.
 - Keep edits focused on the user's task.
 - Prefer replace_text for small edits and write_file for new files.
 - Run tests or a small verification command when practical.

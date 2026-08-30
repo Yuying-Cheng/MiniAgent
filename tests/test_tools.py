@@ -27,6 +27,16 @@ class WorkspaceToolsTest(unittest.TestCase):
         self.assertTrue(read.success)
         self.assertIn("print('ok')", read.content)
 
+    def test_append_and_search_text(self) -> None:
+        self.tools.write_file("pkg/app.py", "def add(a, b):\n    return a + b\n")
+        appended = self.tools.append_file("pkg/app.py", "\nprint(add(2, 3))\n")
+        self.assertTrue(appended.success)
+
+        result = self.tools.search_text("add", path="pkg")
+        self.assertTrue(result.success)
+        self.assertIn("pkg/app.py:1", result.content)
+        self.assertIn("pkg/app.py:4", result.content)
+
     def test_rejects_path_escape(self) -> None:
         result = self.tools.execute("write_file", {"path": "../outside.txt", "content": "no"})
         self.assertFalse(result.success)
