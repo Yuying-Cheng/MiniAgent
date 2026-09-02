@@ -1,4 +1,4 @@
-Git仓库地址：https://github.com/Yuying-Cheng/MiniAgent
+Git仓库地址：https://github.com/acceptppppp/MiniAgent
 
 运行方法：
 需要 Python 3.10+。先设置 AGENT_API_KEY（或 OPENAI_API_KEY），可选设置 AGENT_BASE_URL/OPENAI_BASE_URL 与 AGENT_MODEL/OPENAI_MODEL。
