@@ -4,8 +4,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-DEMO_SOURCE = """def add(a, b):
-    return a - b
+DEMO_SOURCE = """def average(nums):
+    return sum(nums) / (len(nums) - 1)
 
 
 def multiply(a, b):

@@ -1,6 +1,7 @@
 演示任务：
-请检查 demo/calculator.py 和 demo/check_calculator.py，修复计算器里的错误，并运行验证脚本确认通过。
+启动交互模式：python -m minicodex
+然后在 MiniCodex> 后输入：
+请检查 demo/calculator.py 和 demo/check_calculator.py，找出平均值计算错误并修复。修复后运行验证脚本，确认所有测试通过后再结束任务。
 
-可运行命令：
-python -m minicodex --max-steps 8 "请检查 demo/calculator.py 和 demo/check_calculator.py，修复计算器里的错误，并运行验证脚本确认通过。"
-
+也可以演示生成小游戏：
+请创建 demo/snake.html，写一个可以直接用浏览器打开玩的贪吃蛇小游戏。要求：HTML/CSS/JavaScript 单文件实现；方向键控制；有分数显示；撞墙或撞到自己游戏结束；按空格键重新开始。完成后检查文件内容是否已经写入。

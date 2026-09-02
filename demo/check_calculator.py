@@ -1,8 +1,8 @@
-from calculator import add, multiply
+from calculator import average, multiply
 
 
-assert add(2, 3) == 5
-assert add(-1, 1) == 0
+assert average([2, 4, 6]) == 4
+assert average([1, 3]) == 2
 assert multiply(4, 5) == 20
 print("demo checks passed")
 

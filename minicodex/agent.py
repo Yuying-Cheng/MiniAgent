@@ -78,7 +78,10 @@ class MiniCodexAgent:
                 }
             )
 
-        return f"Stopped after reaching max_steps={self.max_steps}."
+        answer = f"Stopped after reaching max_steps={self.max_steps}. The task may be incomplete."
+        if self.verbose:
+            print(f"\nFinal:\n{answer}")
+        return answer
 
     def _parse_decision(self, raw: str) -> dict[str, Any]:
         text = raw.strip()

@@ -25,9 +25,12 @@ Rules:
 - Use relative paths inside the workspace.
 - Inspect relevant files before editing them.
 - Use search_text when you need to locate definitions, error messages, or references.
+- Only inspect README, docs, scripts, or unrelated files when the target files are insufficient.
 - Keep edits focused on the user's task.
 - Prefer replace_text for small edits and write_file for new files.
 - Run tests or a small verification command when practical.
+- run_command executes in Windows PowerShell on Windows, so use PowerShell-compatible commands. Do not use bash-only syntax such as `&&` or `ls -la`.
+- If the requested verification command succeeds and no requested work remains, return final immediately.
 - If a command fails, read the error, fix the cause, and try again.
 - Stop with action="final" when the task is complete or clearly blocked.
 

@@ -12,6 +12,7 @@ from .tools import WorkspaceTools
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run a small local coding agent.")
     parser.add_argument("task", nargs="*", help="Programming task for the agent.")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Start a terminal chat loop.")
     parser.add_argument("--workspace", help="Workspace directory. Defaults to current directory.")
     parser.add_argument("--model", help="Model name. Defaults to AGENT_MODEL or OPENAI_MODEL.")
     parser.add_argument("--base-url", help="OpenAI-compatible base URL ending in /v1.")
@@ -19,22 +20,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--quiet", action="store_true", help="Only print the final answer.")
     args = parser.parse_args(argv)
 
-    task = " ".join(args.task).strip()
-    if not task:
-        if sys.stdin.isatty():
-            task = input("Task: ").strip()
-        else:
-            task = sys.stdin.read().strip()
-    if not task:
-        print("No task provided.", file=sys.stderr)
-        return 2
-
     config = AgentConfig.from_env(
         workspace=args.workspace,
         model=args.model,
         base_url=args.base_url,
         max_steps=args.max_steps,
     )
+    agent = build_agent(config, verbose=not args.quiet)
+
+    task = " ".join(args.task).strip()
+    if args.interactive or (not task and sys.stdin.isatty()):
+        return interactive_loop(agent)
+
+    if not task:
+        task = sys.stdin.read().strip()
+    if not task:
+        print("No task provided.", file=sys.stderr)
+        return 2
+
+    return run_task(agent, task, quiet=args.quiet)
+
+
+def build_agent(config: AgentConfig, *, verbose: bool = True) -> MiniCodexAgent:
     client = OpenAICompatibleChatClient(
         api_key=config.api_key,
         base_url=config.base_url,
@@ -46,25 +53,53 @@ def main(argv: list[str] | None = None) -> int:
         command_timeout=config.command_timeout,
         max_output_chars=config.max_tool_output_chars,
     )
-    agent = MiniCodexAgent(
+    return MiniCodexAgent(
         client,
         tools,
         max_steps=config.max_steps,
         max_context_chars=config.max_context_chars,
-        verbose=not args.quiet,
+        verbose=verbose,
     )
 
+
+def run_task(agent: MiniCodexAgent, task: str, *, quiet: bool = False) -> int:
     try:
         answer = agent.run(task)
     except LLMError as exc:
         print(f"LLM error: {exc}", file=sys.stderr)
         return 1
 
-    if args.quiet:
+    if quiet:
         print(answer)
     return 0
 
 
+def interactive_loop(agent: MiniCodexAgent) -> int:
+    print("MiniCodex interactive mode")
+    print("Type a programming task and press Enter. Use :help for help, :quit to exit.")
+
+    while True:
+        try:
+            task = input("\nMiniCodex> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nBye.")
+            return 0
+
+        if not task:
+            continue
+        if task in {":quit", ":exit", "quit", "exit"}:
+            print("Bye.")
+            return 0
+        if task == ":help":
+            print("Example: create demo/snake.html as a playable Snake game in one HTML file.")
+            print("Commands: :quit exits, :help shows this help.")
+            continue
+
+        status = run_task(agent, task)
+        if status != 0:
+            return status
+        print("\nTask finished. You can enter another request.")
+
+
 if __name__ == "__main__":
     raise SystemExit(main())
-
